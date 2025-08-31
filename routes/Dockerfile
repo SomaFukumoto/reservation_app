@@ -1,26 +1,26 @@
-# 1) ベースイメージ（PHP8.2）
-FROM php:8.2-cli
+# PHPランタイム
+FROM php:8.3-cli
 
-# 2) ツールや拡張をインストール
-RUN apt-get update \
-&& apt-get install -y git unzip libzip-dev \
-&& docker-php-ext-install zip
+# 必要な拡張
+RUN apt-get update && apt-get install -y git unzip libzip-dev \
+    && docker-php-ext-install zip pdo_mysql
 
-# （MySQLを使っているならこの行を有効化）
-RUN docker-php-ext-install pdo_mysql
-
-# 3) composer をインストール
+# composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 4) 作業ディレクトリを /app にする
 WORKDIR /app
+COPY . /app
 
-# 5) Laravel プロジェクトをコピー
-COPY . .
-
-# 6) Composer install & キャッシュ作成
+# 依存インストール（本番最適化）
 RUN composer install --no-dev --optimize-autoloader
-RUN php artisan config:cache && php artisan route:cache && php artisan view:cache || true
 
-# 7) 起動コマンド（Render が渡す $PORT を使用）
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+# ⚠️ 注意：ここで key:generate はしない
+#   APP_KEY は Render の Environment で設定してください。
+#   （ビルド時に生成するとデプロイ毎にキーが変わり、セッション等が壊れます）
+# RUN php artisan key:generate --force  # ←削除
+
+# キャッシュ系は環境変数が入る「起動後」に行うのが安全ですが、
+# まずは未設定でも動く最小にして様子見推奨
+
+# 起動（$PORT にバインド）
+CMD sh -lc 'php -S 0.0.0.0:$PORT -t public'
