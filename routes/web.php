@@ -1,4 +1,7 @@
 <?php
+//一時的なエラーデバック
+Route::get('/health', fn() => 'ok');
+
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StaffController;
