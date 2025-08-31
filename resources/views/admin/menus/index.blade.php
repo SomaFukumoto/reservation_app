@@ -6,7 +6,7 @@
     <div class="min-h-screen px-4 py-12 font-['M_PLUS_1p'] flex flex-col items-center justify-center">
 
         {{-- タイトル --}}
-        <div class="text-center mb-12 ">
+        <div class="text-center mb-12 w-full mt-5">
             <h2 class="text-2xl font-bold text-gray-800">管理者用メニュー一覧</h2>
         </div>
 
